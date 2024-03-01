@@ -33,6 +33,11 @@ struct SecondConfigurationResponse {
         
         if !powerPart {
             powerPart = parsePowerPart(data)
+          
+            if powerPart {
+                isPowerOn = data.last == 1
+            }
+            
             result = powerPart
         }
         
@@ -45,7 +50,11 @@ struct SecondConfigurationResponse {
         if !volumeLevelPart {
             let volume = VolumeLevel(data)
             volumeLevelPart = volume != nil
-            volumeLevel = volume
+          
+            if volumeLevelPart {
+                volumeLevel = volume
+            }
+            
             result = result || volumeLevelPart
         }
         
@@ -53,7 +62,7 @@ struct SecondConfigurationResponse {
     }
     
     // incoming data format: [5, 194, 2, 2, 8, <unknown|0/1>]
-    private mutating func parsePowerPart(_ data: [UInt8]) -> Bool {
+    private func parsePowerPart(_ data: [UInt8]) -> Bool {
         let pattern: [UInt8] = [194, 2, 2, 8]
         
         guard data.count >= pattern.count else {
@@ -61,7 +70,6 @@ struct SecondConfigurationResponse {
         }
         
         if let index = data.firstIndex(of: 194), Array(data[index..<(index + pattern.count)]) == pattern {
-            isPowerOn = data.last == 1
             return true
         }
         
