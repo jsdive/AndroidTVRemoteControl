@@ -10,6 +10,7 @@ import Foundation
 public struct TVConfiguration {
     public let isPowerOn: Bool
     public let volumeLevel: UInt
-    public let playerName: String?
+    public let maxVolumeLevel: UInt
+    public let modelName: String?
     public let runningApp: String?
 }

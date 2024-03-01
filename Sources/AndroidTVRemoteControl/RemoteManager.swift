@@ -235,7 +235,8 @@ public class RemoteManager {
               .init(
                 isPowerOn: secondConfigurationResponse.isPowerOn,
                 volumeLevel: UInt(secondConfigurationResponse.volumeLevel?.volumeLevel ?? 0),
-                playerName: secondConfigurationResponse.volumeLevel?.modelName,
+                maxVolumeLevel: UInt(secondConfigurationResponse.volumeLevel?.volumeMax ?? 0),
+                modelName: secondConfigurationResponse.volumeLevel?.modelName,
                 runningApp: secondConfigurationResponse.runAppName
               )
             )
