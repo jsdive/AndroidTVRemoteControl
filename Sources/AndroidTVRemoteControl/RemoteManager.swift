@@ -18,7 +18,6 @@ public class RemoteManager {
     
     private var data = Data()
     private var secondConfigurationResponse = SecondConfigurationResponse()
-    private var tvConfiguration: TVConfiguration?
     
     public var stateChanged: ((RemoteState)->())?
     public var receiveData: ((Data?, Error?)->Void)?
@@ -49,8 +48,8 @@ public class RemoteManager {
                     self.logger?.infoLog(self.logPrefix + "fisrt configuration has been sent")
                 case .secondConfigSent:
                     self.logger?.infoLog(self.logPrefix + "second configuration has been sent")
-                case .paired(runningApp: let runningApp):
-                    self.logger?.infoLog(self.logPrefix + "paired, current running app: " + (runningApp ?? "Unknown"))
+                case let .paired(configuration):
+                  self.logger?.infoLog(self.logPrefix + "paired, current running app: " + (configuration.runningApp ?? "Unknown"))
                 }
                 
                 self.stateChanged?(state)
@@ -131,8 +130,7 @@ public class RemoteManager {
         case .preparing:
             remoteState = .connectionPrepairing
         case .ready:
-            guard let tvConfiguration else { return }
-            remoteState = .connected(tvConfiguration)
+            remoteState = .connected
             receive()
         case .failed(let error):
             remoteState = .error(.connectionFailed(error))
@@ -233,13 +231,14 @@ public class RemoteManager {
                 return
             }
             
-            tvConfiguration = .init(
-              isPowerOn: secondConfigurationResponse.isPowerOn,
-              volumeLevel: UInt(secondConfigurationResponse.volumeLevel?.volumeLevel ?? 0),
-              playerName: secondConfigurationResponse.volumeLevel?.modelName,
-              runningApp: secondConfigurationResponse.runAppName
+            remoteState = .paired(
+              .init(
+                isPowerOn: secondConfigurationResponse.isPowerOn,
+                volumeLevel: UInt(secondConfigurationResponse.volumeLevel?.volumeLevel ?? 0),
+                playerName: secondConfigurationResponse.volumeLevel?.modelName,
+                runningApp: secondConfigurationResponse.runAppName
+              )
             )
-            remoteState = .paired(runningApp: secondConfigurationResponse.runAppName)
             receive()
         default:
             logger?.debugLog(logPrefix + "unrecognized data")
@@ -270,11 +269,11 @@ extension RemoteManager {
         case idle
         case connectionSetUp
         case connectionPrepairing
-        case connected(TVConfiguration)
+        case connected
         case fisrtConfigMessageReceived(CommandNetwork.DeviceInfo)
         case firstConfigSent
         case secondConfigSent
-        case paired(runningApp: String?)
+        case paired(TVConfiguration)
         case error(AndroidTVRemoteControlError)
     }
 }
