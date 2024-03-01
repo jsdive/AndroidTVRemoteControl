@@ -130,7 +130,14 @@ public class RemoteManager {
         case .preparing:
             remoteState = .connectionPrepairing
         case .ready:
-            remoteState = .connected
+            remoteState = .connected(
+              .init(
+                isPowerOn: secondConfigurationResponse.isPowerOn,
+                volumeLevel: UInt(secondConfigurationResponse.volumeLevel?.volumeLevel ?? 0),
+                playerName: secondConfigurationResponse.volumeLevel?.modelName,
+                runningApp: secondConfigurationResponse.runAppName
+              )
+            )
             receive()
         case .failed(let error):
             remoteState = .error(.connectionFailed(error))
@@ -218,11 +225,11 @@ public class RemoteManager {
             }
             
             if secondConfigurationResponse.powerPart {
-                logger?.debugLog(logPrefix + "second configuration response POWER - OK")
+              logger?.debugLog(logPrefix + "second configuration response POWER - \(secondConfigurationResponse.isPowerOn)")
             }
             
             if secondConfigurationResponse.volumeLevelPart {
-                logger?.debugLog(logPrefix + "second configuration response VOLUME LEVEL - OK")
+              logger?.debugLog(logPrefix + "second configuration response VOLUME LEVEL - \(secondConfigurationResponse.volumeLevel?.volumeLevel ?? 0)")
             }
             
             data.removeAll()
@@ -262,7 +269,7 @@ extension RemoteManager {
         case idle
         case connectionSetUp
         case connectionPrepairing
-        case connected
+        case connected(TVConfiguration)
         case fisrtConfigMessageReceived(CommandNetwork.DeviceInfo)
         case firstConfigSent
         case secondConfigSent
