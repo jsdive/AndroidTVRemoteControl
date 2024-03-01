@@ -18,6 +18,7 @@ public class RemoteManager {
     
     private var data = Data()
     private var secondConfigurationResponse = SecondConfigurationResponse()
+    private var tvConfiguration: TVConfiguration?
     
     public var stateChanged: ((RemoteState)->())?
     public var receiveData: ((Data?, Error?)->Void)?
@@ -130,14 +131,8 @@ public class RemoteManager {
         case .preparing:
             remoteState = .connectionPrepairing
         case .ready:
-            remoteState = .connected(
-              .init(
-                isPowerOn: secondConfigurationResponse.isPowerOn,
-                volumeLevel: UInt(secondConfigurationResponse.volumeLevel?.volumeLevel ?? 0),
-                playerName: secondConfigurationResponse.volumeLevel?.modelName,
-                runningApp: secondConfigurationResponse.runAppName
-              )
-            )
+            guard let tvConfiguration else { return }
+            remoteState = .connected(tvConfiguration)
             receive()
         case .failed(let error):
             remoteState = .error(.connectionFailed(error))
@@ -238,6 +233,12 @@ public class RemoteManager {
                 return
             }
             
+            tvConfiguration = .init(
+              isPowerOn: secondConfigurationResponse.isPowerOn,
+              volumeLevel: UInt(secondConfigurationResponse.volumeLevel?.volumeLevel ?? 0),
+              playerName: secondConfigurationResponse.volumeLevel?.modelName,
+              runningApp: secondConfigurationResponse.runAppName
+            )
             remoteState = .paired(runningApp: secondConfigurationResponse.runAppName)
             receive()
         default:
