@@ -16,7 +16,7 @@ public class TLSManager {
         self.certificateProvider = certificateProviderClosure
     }
     
-    func getNWParams(_ queue: DispatchQueue) -> Result<NWParameters> {
+    func getNWParams(_ queue: DispatchQueue, connectionTimeout: Int = 5) -> Result<NWParameters> {
         var rawItems: CFArray?
 
         switch certificateProvider() {
@@ -58,7 +58,7 @@ public class TLSManager {
         }, queue)
       
         let tcpOptions = NWProtocolTCP.Options()
-        tcpOptions.connectionTimeout = 3
+        tcpOptions.connectionTimeout = connectionTimeout
         
         return .Result(NWParameters(tls: tlsOptions, tcp: tcpOptions))
     }
