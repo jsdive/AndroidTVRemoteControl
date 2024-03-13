@@ -63,14 +63,14 @@ public class RemoteManager {
         self.logger = logger
     }
     
-    public func connect(_ host: String) {
+    public func connect(_ host: String, timeout: Int = 5) {
         if host.isEmpty {
             logger?.errorLog(logPrefix + "host shouldn't be empty!")
         }
         
         let tlsParams: NWParameters
 
-        switch tlsManager.getNWParams(remoteQueue) {
+        switch tlsManager.getNWParams(remoteQueue, connectionTimeout: timeout) {
         case .Result(let params):
             tlsParams = params
         case .Error(let error):
