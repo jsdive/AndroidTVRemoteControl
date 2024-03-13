@@ -42,9 +42,9 @@ public class TLSManager {
             return .Error(.secIdentityCreateError)
         }
         
-        let options = NWProtocolTLS.Options()
+        let tlsOptions = NWProtocolTLS.Options()
         
-        sec_protocol_options_set_verify_block(options.securityProtocolOptions, { [weak self] (_, sec_trust, completionHandler) in
+        sec_protocol_options_set_verify_block(tlsOptions.securityProtocolOptions, { [weak self] (_, sec_trust, completionHandler) in
             let serverTrust = sec_trust_copy_ref(sec_trust).takeRetainedValue()
 
             self?.secTrustClosure?(serverTrust)
@@ -53,10 +53,13 @@ public class TLSManager {
             completionHandler(true)
         }, queue)
         
-        sec_protocol_options_set_challenge_block(options.securityProtocolOptions, { (_, completionHandler) in
+        sec_protocol_options_set_challenge_block(tlsOptions.securityProtocolOptions, { (_, completionHandler) in
             completionHandler(secIdentity)
         }, queue)
+      
+        let tcpOptions = NWProtocolTCP.Options()
+        tcpOptions.connectionTimeout = 3
         
-        return .Result(NWParameters(tls: options))
+        return .Result(NWParameters(tls: tlsOptions, tcp: tcpOptions))
     }
 }
