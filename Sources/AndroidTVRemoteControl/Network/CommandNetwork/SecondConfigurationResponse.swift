@@ -34,8 +34,8 @@ struct SecondConfigurationResponse {
         if !powerPart {
             powerPart = parsePowerPart(data)
           
-            if powerPart {
-                isPowerOn = data.last == 1
+            if powerPart, let index = data.firstIndex(of: 194) {
+                isPowerOn = data[index + 4] == 1
             }
             
             result = powerPart
