@@ -226,11 +226,12 @@ public class RemoteManager {
               logger?.debugLog(logPrefix + "second configuration response VOLUME LEVEL - \(secondConfigurationResponse.volumeLevel?.volumeLevel ?? 0)")
             }
             
-            data.removeAll()
             guard secondConfigurationResponse.readyFullResponse else {
                 receive()
                 return
             }
+          
+            data.removeAll()
             
             remoteState = .paired(
               .init(
