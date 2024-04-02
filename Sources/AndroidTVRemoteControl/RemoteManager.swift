@@ -94,6 +94,7 @@ public class RemoteManager {
         connection?.stateUpdateHandler = nil
         connection?.cancel()
         connection = nil
+        data.removeAll()
     }
     
     public func send(_ request: RequestDataProtocol) {
